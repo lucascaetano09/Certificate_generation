@@ -1,0 +1,44 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelo para a tabela "diplomas"
+model Diploma {
+  id              Int       @id @default(autoincrement())
+  nomeAluno       String    @map("nome_aluno")
+  dataConclusao   DateTime  @map("data_conclusao")
+  nomeCurso       String    @map("nome_curso")
+  nacionalidade   String
+  naturalidade    String
+  dataNascimento  DateTime  @map("data_nascimento")
+  numeroRg        String    @map("numero_rg")
+  dataEmissao     DateTime  @map("data_emissao")
+  templateDiploma String    @db.Text @map("template_diploma")
+
+  // Relacionamento com Assinatura
+  assinaturas     Assinatura[]
+
+  @@map("diplomas")
+}
+
+// Modelo para a tabela "assinaturas"
+model Assinatura {
+  id       Int      @id @default(autoincrement())
+  diploma  Diploma  @relation(fields: [diplomaId], references: [id])
+  diplomaId Int     @map("diploma_id")
+  cargo     String
+  nome      String
+
+  @@map("assinaturas")
+}
