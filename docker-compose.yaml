@@ -32,9 +32,10 @@ services:
       MYSQL_PASSWORD: userpassword
     volumes:
       - mysqldata:/var/lib/mysql
-      - ./db-mysql/ddl.sql:/docker-entrypoint-initdb.d/ddl.sql
+      - ./database/ddl.sql:/docker-entrypoint-initdb.d/ddl.sql
     ports:
       - "3306:3306"
 
 volumes:
       rabbitmq_data:
+      mysqldata:
