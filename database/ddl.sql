@@ -4,12 +4,12 @@ USE sistema_diplomas;
 CREATE TABLE IF NOT EXISTS diplomas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome_aluno VARCHAR(255),
+    nacionalidade VARCHAR(255),
+    estado VARCHAR(255),
+    data_nascimento DATE,
+    numero_cpf VARCHAR(20),
     data_conclusao DATE,
     nome_curso VARCHAR(255),
-    nacionalidade VARCHAR(255),
-    naturalidade VARCHAR(255),
-    data_nascimento DATE,
-    numero_rg VARCHAR(20),
     data_emissao DATE,
     template_diploma TEXT
 );
