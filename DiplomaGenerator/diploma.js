@@ -1,6 +1,5 @@
 class Diploma {
-    constructor(id, nomeAluno,  nacionalidade, estado, dataNascimento, cpf, dataConclusao, curso, dataEmissao) {
-        this.id = id;
+    constructor(nomeAluno,  nacionalidade, estado, dataNascimento, cpf, dataConclusao, curso, dataEmissao) {
         this.nomeAluno = nomeAluno;
         this.nacionalidade = nacionalidade
         this.estado = estado

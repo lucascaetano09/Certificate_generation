@@ -17,6 +17,9 @@ services:
       context: ./api
       dockerfile: Dockerfile
     environment:
+      - DB_DATABASE=sistema_diplomas
+      - DB_USER=user
+      - DB_PW=userpassword
       - RABBITMQ_HOST=rabbitmq
     depends_on:
       - rabbitmq
@@ -35,6 +38,16 @@ services:
       - ./database/ddl.sql:/docker-entrypoint-initdb.d/ddl.sql
     ports:
       - "3306:3306"
+
+  diploma-generator:
+    build: 
+      context: ./DiplomaGenerator
+      dockerfile: Dockerfile
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - rabbitmq
+      - mysql
 
 volumes:
       rabbitmq_data:

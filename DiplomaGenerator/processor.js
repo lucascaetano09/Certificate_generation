@@ -38,7 +38,6 @@ function substituirDados(html, dados) {
     "{{documento}}": "92954",
     "{{data_conclusao}}": "01/01/0001",
     "{{curso}}": "Sistemas de Informação",
-    "{{carga_horaria}}": "4000",
     "{{data_emissao}}": "06/11/2024",
     "{{nome_assinatura}}": "José Romualdo",
     "{{cargo}}": "Professor"
