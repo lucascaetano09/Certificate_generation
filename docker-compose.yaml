@@ -43,6 +43,8 @@ services:
     build: 
       context: ./DiplomaGenerator
       dockerfile: Dockerfile
+    volumes:
+      - ./diplomasGerados:/usr/src/diplomasGerados
     environment:
       - RABBITMQ_HOST=rabbitmq
     depends_on:

@@ -12,10 +12,12 @@ class Diploma {
     this.nomeAluno = nomeAluno;
     this.nacionalidade = nacionalidade;
     this.estado = estado;
-    this.dataNascimento = new Date(dataNascimento);
+    this.dataNascimento = dataNascimento;
     this.cpf = cpf;
-    this.dataConclusao = new Date(dataConclusao);
+    this.dataConclusao = dataConclusao;
     this.curso = curso;
-    this.dataEmissao = new Date(dataEmissao);
+    this.dataEmissao = dataEmissao;
   }
 }
+
+module.exports = Diploma;

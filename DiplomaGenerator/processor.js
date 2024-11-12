@@ -3,11 +3,13 @@ const puppeteer = require("puppeteer");
 const fs = require("fs");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
-const uuid = uuidv4();
+const mysql = require("mysql2");
 const Diploma = require("./diploma");
 
 async function gerarPDF(html) {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    args: ["--no-sandbox", "--disable-setuid-sandbox"], // Add these flags
+  });
   const page = await browser.newPage();
   await page.setContent(html);
   const pdf = await page.pdf({ format: "A4", landscape: true });
@@ -23,7 +25,31 @@ function substituirDados(html, diplomaInstance) {
   return html.replace(/{{(\w+)}}/g, (match, p1) => diplomaInstance[p1] || "");
 }
 
-(async () => {
+function formatDateToMySQL(dateString) {
+  const [day, month, year] = dateString.split("/");
+  return `${year}-${month}-${day}`; // Convert to YYYY-MM-DD
+}
+
+let mysqlConnection;
+
+const mysqlInterval = setInterval(() => {
+  mysqlConnection = mysql.createConnection({
+    host: "mysql",
+    user: "user",
+    password: "userpassword",
+    database: "sistema_diplomas",
+  });
+
+  mysqlConnection.connect((err) => {
+    if (err) throw err;
+    clearInterval(mysqlInterval);
+    console.log("Connected to MySQL!");
+  });
+}, 5000);
+
+console.log("Waiting for RabbitMQ to start");
+
+setTimeout(async () => {
   try {
     const connection = await amqp.connect("amqp://rabbitmq");
     const channel = await connection.createChannel();
@@ -61,6 +87,7 @@ function substituirDados(html, diplomaInstance) {
           const pdfBuffer = await gerarPDF(filledHTML);
 
           // Define the PDF path and write the file
+          const uuid = uuidv4();
           const pdfPath = path.join(
             __dirname,
             "../diplomasGerados",
@@ -68,6 +95,31 @@ function substituirDados(html, diplomaInstance) {
           );
           fs.writeFileSync(pdfPath, pdfBuffer);
           console.log("PDF generated and saved at:", pdfPath);
+
+          const query = `INSERT INTO diplomas (nome_aluno, nacionalidade, estado, data_nascimento, numero_cpf, data_conclusao, nome_curso, data_emissao, diploma_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+          mysqlConnection.query(
+            query,
+            [
+              diplomaInstance.nomeAluno,
+              diplomaInstance.nacionalidade,
+              diplomaInstance.estado,
+              formatDateToMySQL(diplomaInstance.dataNascimento),
+              diplomaInstance.cpf,
+              formatDateToMySQL(diplomaInstance.dataConclusao),
+              diplomaInstance.curso,
+              formatDateToMySQL(diplomaInstance.dataEmissao),
+              pdfPath,
+            ],
+            (err, result) => {
+              if (err) {
+                console.error("Erro ao salvar no MySQL:", err);
+                return res
+                  .status(500)
+                  .send("Erro ao salvar no banco de dados.");
+              }
+            }
+          );
+          console.log("Data inserted in database.");
 
           // Acknowledge message processing
           channel.ack(msg);
@@ -80,4 +132,4 @@ function substituirDados(html, diplomaInstance) {
   } catch (error) {
     console.error("Error connecting to RabbitMQ:", error);
   }
-})().catch(console.error);
+}, 40000);
